@@ -21,10 +21,12 @@ def add_contact(args: list, book: AddressBook) -> str:
         record.add_phone(phone)
     return message
 
+
 @input_error
-def show_phone(args: list,  book: AddressBook) -> str:
+def show_phone(args: list, book: AddressBook) -> str:
     name = args[0]
     return book.find(name)
+
 
 @input_error
 def change_contact(contact_for_change: list, book: AddressBook) -> str:
@@ -32,6 +34,7 @@ def change_contact(contact_for_change: list, book: AddressBook) -> str:
     record = book.find(name)
     record.edit_phone(old_phone, new_phone)
     return "✅ Contact updated"
+
 
 @input_error
 def show_all(book: AddressBook) -> str:
@@ -46,24 +49,29 @@ def show_all(book: AddressBook) -> str:
         printed_contatcs += f"📒: {name} 📱: {phones}\n"
     return printed_contatcs
 
+
 @input_error
-def add_birthday(args: list, book:AddressBook) -> str:
-    b_day, name, *_  = args
+def add_birthday(args: list, book: AddressBook) -> str:
+    b_day, name, *_ = args
     book.set_birthday(b_day, name)
     return "🎉 Birthday added"
 
+
 @input_error
-def show_birthday(args: list, book:AddressBook) -> str:
+def show_birthday(args: list, book: AddressBook) -> str:
     name = args[0]
     b_day = book.display_contact_birthday(name)
     return b_day
 
-@input_error
-def birthdays(args: list, book:AddressBook) -> str:
+
+def birthdays(book: AddressBook) -> str:
     upcoming_birthdays = book.get_upcoming_birthdays()
-    print(upcoming_birthdays)
-    for info in upcoming_birthdays:
-        pass
+    return "\n".join(
+        [
+            f"🎉 {entry['name']}: {entry['congratulation_date']}"
+            for entry in upcoming_birthdays
+        ]
+    )
 
 
 def main():
@@ -100,7 +108,7 @@ def main():
             print(show_birthday(info, book))
 
         elif command == "birthdays":
-            print(birthdays())
+            print(birthdays(book))
 
         else:
             print("❌ Invalid command")

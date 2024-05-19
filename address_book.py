@@ -1,6 +1,6 @@
 from collections import UserDict
 from datetime import datetime, timedelta
-from errors_handler import input_error
+
 
 class Field:
     def __init__(self, value):
@@ -27,10 +27,10 @@ class Birthday(Field):
     def __init__(self, value, format="%d.%m.%Y"):
         try:
             parsed_date = datetime.strptime(value, format)
-            self.value = Field(parsed_date)
+            self.value = parsed_date
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
-        
+
 
 class Record(Field):
     def __init__(self, name):
@@ -72,59 +72,57 @@ class Record(Field):
 
 class AddressBook(UserDict):
     def add_record(self, record):
-        self.data[record.name] = record
+        self.data[record.name.value] = record
 
     def find(self, name):
-        for record_name, record in self.data.items():
-            if name == record_name.name.value:
-                return record
+        return self.data.get(name, None)
 
     def delete(self, name):
-        for record_name, record in self.data.items():
-            if name == record_name.name.value:
-                del self.data[record_name]
-                return True
+        if name in self.data:
+            del self.data[name]
+            return True
         return False
-    
+
     def set_birthday(self, name, date):
         contact = self.find(name)
-        contact.add_birthday(date)
+        if contact:
+            contact.add_birthday(date)
 
     def display_contact_birthday(self, name):
         contact = self.find(name)
-        if contact.birthday:
-            return contact.birthday.value
+        if contact and contact.birthday:
+            formated_b_day = contact.birthday.value.strftime("%d.%m.%Y")
+            return formated_b_day
         else:
             raise AttributeError("🔴 Contact does not have a birthday")
 
     def get_upcoming_birthdays(self):
-        current_date = datetime.today().date()
+        CURRENT_DATE = datetime.today().date()
         upcoming_birthdays = []
 
         for info in self.data.values():
-            name = info.name.value()
-            birthday = datetime.strptime(str(info.birthday), "%d.%m.%Y").date()
-            birthday_this_year = birthday.replace(year=current_date.year)
+            name = info.name.value
+            birthday = info.birthday.value.date()
+            birthday_this_year = birthday.replace(year=CURRENT_DATE.year)
 
-            if birthday_this_year < current_date:
-                birthday_this_year = birthday.replace(year=current_date.year + 1)
+            if birthday_this_year < CURRENT_DATE:
+                birthday_this_year = birthday.replace(year=CURRENT_DATE.year + 1)
 
-            delta_days = (birthday_this_year - current_date).days
+            delta_days = (birthday_this_year - CURRENT_DATE).days
 
             if delta_days < 7:
-                formated_date = datetime.strftime(birthday_this_year, "%d.%m.%Y")
+                formatted_date = birthday_this_year.strftime("%d.%m.%Y")
 
                 if birthday_this_year.weekday() >= 5:
                     days_until_monday = (7 - birthday_this_year.weekday()) % 7
                     next_monday = birthday_this_year + timedelta(days=days_until_monday)
-                    formated_date = datetime.strftime(next_monday, "%d.%m.%Y")
+                    formatted_date = next_monday.strftime("%d.%m.%Y")
 
                 upcoming_birthdays.append(
                     {
                         "name": name,
-                        "congratulation_date": formated_date,
+                        "congratulation_date": formatted_date,
                     }
                 )
 
         return upcoming_birthdays
-

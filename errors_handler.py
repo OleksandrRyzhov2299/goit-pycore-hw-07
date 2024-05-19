@@ -1,4 +1,3 @@
-
 def input_error(func):
     def inner(*args, **kwargs):
         try:
@@ -13,4 +12,3 @@ def input_error(func):
             return "🔴 Some error is occured. We are working on a solution"
 
     return inner
-
